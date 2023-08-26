@@ -1,14 +1,18 @@
 import { useState } from "react";
 import "./App.css";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAIApi from "openai";
 
-const configuration = new Configuration({
+// const configuration = new Configuration({
+//   organization: "org-0nmrFWw6wSm6xIJXSbx4FpTw",
+//   apiKey: "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",
+// });
+const openai = new OpenAIApi({
   organization: "org-0nmrFWw6wSm6xIJXSbx4FpTw",
   apiKey: "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",
-});
-const openai = new OpenAIApi(configuration);
+  dangerouslyAllowBrowser: true 
+})
 
-function App() {
+export default function App() {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -18,14 +22,13 @@ function App() {
 
     if (!message) return;
     setIsTyping(true);
-    scrollTo(0, 1e10);
+    window.scrollTo(0, 1e10);
 
     let msgs = chats;
     msgs.push({ role: "user", content: message });
     setChats(msgs);
     setMessage("");
-    await openai
-      .createChatCompletion({
+    await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [
           {
@@ -37,10 +40,10 @@ function App() {
         ],
       })
       .then((res) => {
-        msgs.push(res.data.choices[0].message);
+        msgs.push(res.choices[0].message);
         setChats(msgs);
         setIsTyping(false);
-        scrollTo(0, 1e10)
+        window.scrollTo(0, 1e10)
       })
       .catch((error) => {
         console.log(error);
@@ -83,5 +86,3 @@ function App() {
     </main>
   );
 }
-
-export default App;
